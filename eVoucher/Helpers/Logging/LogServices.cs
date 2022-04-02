@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace eVoucher.Helpers.Logging
 {
-    public class LogServices<IRequest> : ILogServices<IRequest>
+    public class LogServices : ILogServices
     {
         private static string LoggingMode;
         private readonly IConfiguration config;
@@ -18,10 +18,10 @@ namespace eVoucher.Helpers.Logging
         {
             _Dbcontext = dbContext;
             config = configuration;         
-            LoggingMode = config["TripleDesSecretKey"];
+            LoggingMode = config["LoggingMode"];
         }
-        delegate void LoggingProcess(IRequest reqData);
-        public void PerformLogging(IRequest reqData)
+        delegate void LoggingProcess(eVoucherLogTableModel reqData);
+        public async Task PerformLoggingAsync(eVoucherLogTableModel reqData)
         {
             LoggingProcess LoggingProcessOption;
             IAsyncResult asynCall;
@@ -32,8 +32,10 @@ namespace eVoucher.Helpers.Logging
 
                 case "1":
                     LoggingProcessOption = new LoggingProcess(LogInDataBase);
-                    asynCall = LoggingProcessOption.BeginInvoke(reqData, null, null);
-                    LoggingProcessOption.EndInvoke(asynCall);
+                    var begin = Task.Run(() => LoggingProcessOption.Invoke(reqData));
+                    var followUpTask = begin.ContinueWith(null);
+                    await begin;
+                    await followUpTask;
                     break;
 
                 case "2":
@@ -51,31 +53,30 @@ namespace eVoucher.Helpers.Logging
         }
         private void callBack(IAsyncResult result)
         {
-            Tuple<IRequest> state = (Tuple<IRequest>)result.AsyncState;
+            Tuple<eVoucherLogTableModel> state = (Tuple<eVoucherLogTableModel>)result.AsyncState;
             LogInFile(state.Item1);
         }
-        private async void LogInDataBase(IRequest reqData)
+        private async void LogInDataBase(eVoucherLogTableModel reqData)
         {
             try
             {             
-                await _Dbcontext.AddAsync((eVoucherLogTableModel)Convert.ChangeType(reqData, typeof(eVoucherLogTableModel)));
+                await _Dbcontext.AddAsync(reqData);
                 await _Dbcontext.SaveChangesAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                string exmsg = ex.Message;
             }          
         }
 
-        private void LogInFile(IRequest reqData)
-        {
-            var RequetModel = (eVoucherLogTableModel)Convert.ChangeType(reqData, typeof(eVoucherLogTableModel));
+        private void LogInFile(eVoucherLogTableModel reqData)
+        {          
             try
             {
-                string LogMessage =  RequetModel.Message;
+                string LogMessage = reqData.Message;
                 string[] lines = new string[]{$@"
-Request Data:  {RequetModel.RequestData} 
-Response Data:  {RequetModel.ResponseData} 
+Request Data:  {reqData.RequestData} 
+Response Data:  {reqData.ResponseData} 
 LogMessage: {LogMessage}
 RequestDatetime:  {DateTime.Now}"
                 };

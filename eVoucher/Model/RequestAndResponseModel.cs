@@ -38,9 +38,16 @@ namespace eVoucher.Model
         public string ResponseCode { get; set; }
         public string ResponseDescription { get; set; }
     }
+    public class GetTokenResponseModel
+    {
+        public string ResponseCode { get; set; }
+        public string ResponseDescription { get; set; }
+        public string JwtToken { get; set; }
+        public string UserID { get; set; }
+    }
     public class AuthenticationModel
     {
-        public int UserID { get; set; }
+        public string MobileNo { get; set; }
         public string Password { get; set; }
     }
     public class AuthenticationAPIRequestModel

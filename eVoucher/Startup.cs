@@ -1,6 +1,7 @@
 using eVoucher.Authentication;
 using eVoucher.BusinessLogicLayer;
 using eVoucher.DataInfrastructure;
+using eVoucher.Helpers.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -59,6 +60,7 @@ namespace eVoucher
             services.AddControllers();
             services.AddSwaggerGen();
             services.AddScoped<IeVoucherCMSBusinessLogic, eVoucherCMSBusinessLogic>();
+            services.AddScoped<ILogServices, LogServices>();
             //services.AddScoped<ImodelSerializer, modelSerializer>();
         }
 

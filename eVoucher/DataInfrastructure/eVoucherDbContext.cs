@@ -18,12 +18,12 @@ namespace eVoucher.DataInfrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<TransactionHistoryTableModel>().ToTable("transactionHistory");
-            modelBuilder.Entity<eVoucherTableModel>().ToTable("eVoucher");
-            modelBuilder.Entity<eVoucherLogTableModel>().ToTable("eVoucherLog");
-            modelBuilder.Entity<UsersOrderedVouchersTableModel>().ToTable("usersOrderedVouchers");
-            modelBuilder.Entity<PaymentMethodTableModel>().ToTable("paymentMethod");
-            modelBuilder.Entity<UsersTableModel>().ToTable("usersTableModel");
+            modelBuilder.Entity<TransactionHistoryTableModel>().ToTable("e_voucher_transactionhistory");
+            modelBuilder.Entity<eVoucherTableModel>().ToTable("evoucher");
+            modelBuilder.Entity<eVoucherLogTableModel>().ToTable("evoucherlog");
+            modelBuilder.Entity<UsersOrderedVouchersTableModel>().ToTable("orderedevoucher");
+            modelBuilder.Entity<PaymentMethodTableModel>().ToTable("paymentmethod");
+            modelBuilder.Entity<UsersTableModel>().ToTable("users");
 
         }
     }

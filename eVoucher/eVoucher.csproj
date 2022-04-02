@@ -17,5 +17,9 @@
     <PackageReference Include="Toolbelt.EntityFrameworkCore.IndexAttribute" Version="5.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Images\" />
+  </ItemGroup>
+
 
 </Project>

@@ -1,12 +1,13 @@
-﻿using System;
+﻿using eVoucher.DataInfrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace eVoucher.Helpers.Logging
 {
-    public interface ILogServices<IRequest>
+    public interface ILogServices
     {
-        void PerformLogging(IRequest reqData);
+        Task PerformLoggingAsync(eVoucherLogTableModel reqData);
     }
 }

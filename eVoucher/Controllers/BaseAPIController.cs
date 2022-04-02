@@ -25,6 +25,7 @@ namespace eVoucher.Controllers
         public string ErrorMessage { get; set; }
         public errorResponseModel respModel { get; set; }
 
+
         public BaseAPIController()
         {
             Serializer = FactoryList.ModelSerializerInitialization();
