@@ -85,4 +85,11 @@ namespace eVoucher.DataInfrastructure
         public string MobileNo { get; set; }
         public string Password { get; set; }
     }
+    public class eVoucherQuantityControl
+    {
+        [Key]
+        public int ID { get; set; }
+        public int VoucherID { get; set; }
+        public int VoucherPurchasedQuantity { get; set; }
+    }
 }
