@@ -56,7 +56,7 @@ namespace eVoucher.BusinessLogicLayer.eStore
                 from voucher in _dbContext.eVoucher
                 .Where(vc => (vc.Quantity - (from orderCount in _dbContext.eVoucherQuantityControl
                                                 .Where(x => x.VoucherID == vc.ID)
-                                                  select orderCount.VoucherPurchasedQuantity).FirstOrDefault()) > 0)
+                                                  select orderCount.VoucherPurchasedQuantity).FirstOrDefault()) > 0 && vc.eStatus == 1)
                 orderby voucher.Title ascending
                 from paymentMethod in _dbContext.paymentMethod
                 .Where(pm => pm.ID == voucher.PaymentMethodID)
@@ -73,6 +73,69 @@ namespace eVoucher.BusinessLogicLayer.eStore
 
             return getEVoucherbyID;
         }
-        
+        public async Task<eShopCheckOutResponseModel> eShopCheckOut(eShopCheckOutRequestModel requestModel)
+        {
+            var calcualtionModel = new eShopCheckOutAmountCalculationModel();
+
+            #region Validations
+            var isDiscountAppealable = await (
+                from Pmethod in _dbContext.eVoucher
+                .Where(vc => vc.ID == int.Parse(requestModel.VoucherID) && vc.eStatus == 1)
+                select Pmethod).FirstOrDefaultAsync();
+            if(isDiscountAppealable == null)
+            {
+                return new eShopCheckOutResponseModel { ResponseCode = "014", ResponseDescription = "This eVoucher is deactivated." };
+            }
+            if(isDiscountAppealable.Quantity < int.Parse(requestModel.Quantity))
+            {
+                return new eShopCheckOutResponseModel { ResponseCode = "015", ResponseDescription = "You have entered more than available quantity." };
+            }
+            #endregion
+
+            var PreTotalAmount = int.Parse(requestModel.Quantity) * isDiscountAppealable.Amount;
+            decimal DiscountValue = 0;          
+            if (isDiscountAppealable.PaymentMethodID.ToString() == requestModel.PaymentMethodID)
+            {
+                DiscountValue = await DiscountAmountCalculation(requestModel.PaymentMethodID, PreTotalAmount);                
+            }
+            calcualtionModel.Amount = isDiscountAppealable.Amount.ToString();
+            calcualtionModel.Discount = DiscountValue.ToString();
+            calcualtionModel.TotalAmount = (PreTotalAmount - DiscountValue).ToString();
+            calcualtionModel.Quantity = requestModel.Quantity;
+
+            return new eShopCheckOutResponseModel { ResponseCode = "000", ResponseDescription = "Success", data = calcualtionModel }  ;
+        }
+        public async Task<decimal> DiscountAmountCalculation(string PaymentMethodID, decimal TotalAmount)
+        {
+            var getDiscount = await(
+                from Pmethod in _dbContext.paymentMethod
+                .Where(vc => vc.ID == int.Parse(PaymentMethodID) && vc.MethodStatus == 1)
+                select Pmethod).FirstOrDefaultAsync();
+
+            decimal discountValue = 0;
+            string DiscountType = null;
+            if (getDiscount != null)
+            {
+                DiscountType = getDiscount.DiscountType;
+                discountValue = getDiscount.DiscountValue;
+
+            }
+            
+            return GetDiscountAmount(DiscountType, TotalAmount, discountValue);
+
+        }
+        public static decimal GetDiscountAmount(string discountType, decimal amount, decimal discountvalue)
+        {          
+            decimal returnAmount = 0;
+            if (discountType == "Pcent")
+            {
+                returnAmount = amount * (discountvalue / 100);
+            }
+            else if (discountType == "2")
+            {
+                returnAmount = discountvalue;
+            }
+            return returnAmount;
+        }
     }
 }

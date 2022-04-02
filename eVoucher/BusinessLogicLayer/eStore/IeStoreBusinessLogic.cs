@@ -10,5 +10,6 @@ namespace eVoucher.BusinessLogicLayer.eStore
     {
         Task<eShopSelfVoucherDetailModel> eVoucherDetail(int voucherID);
         Task<List<eShopSelfVoucherListModel>> DisplayListOfActiveeVoucher();
+        Task<eShopCheckOutResponseModel> eShopCheckOut(eShopCheckOutRequestModel requestModel);
     }
 }

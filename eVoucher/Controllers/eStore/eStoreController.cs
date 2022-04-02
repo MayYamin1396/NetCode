@@ -108,5 +108,42 @@ namespace eVoucher.Controllers.eStore
             }
         }
 
+        [HttpPost]
+        [Route("CheckOutVoucher")]
+        public async Task<IActionResult> CheckOutVoucher([FromBody] eShopCheckOutRequestModel requestModel)
+        {
+            string DecryptRequest = null;
+            string getToken = null;
+            string errMessage = null;
+            try
+            {
+                if (ValidateRequestModel(requestModel) == false)
+                {
+                    return FailValidationResponse();
+                }
+                var CreateVoucher = await businessLayer.eShopCheckOut(requestModel);
+                return Ok(CreateVoucher);
+            }
+            catch (Exception ex)
+            {
+                errMessage = ex.Message;
+                return BadRequest();
+            }
+            finally
+            {
+                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
+                //{
+                //    Method = Request.Method,
+                //    Route = Request.Path,
+                //    RequestData = DecryptRequest,
+                //    ResponseData = JsonConvert.SerializeObject(getToken),
+                //    CreatedDate = DateTime.Now,
+                //    Request_UserID = 0,
+                //    Message = errMessage == null ? "Success" : errMessage
+
+                //})).Start();
+            }
+        }
+
     }
 }

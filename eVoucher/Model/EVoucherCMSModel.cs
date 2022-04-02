@@ -37,7 +37,7 @@ namespace eVoucher.Model
         public string ID { get; set; }
         public string eStatus { get; set; }
     }
-    public class eVoucherDisplayByIDRequestModel
+    public class eVoucherDisplayByIDRequestModel: ValidateThisModel /// Flag to check the Attributes 
     {
         [Required]
         [LengthValidation(10)]
@@ -45,7 +45,7 @@ namespace eVoucher.Model
         public string ID { get; set; }
     }
 
-    public class eVoucherDeactivateRequestModel
+    public class eVoucherDeactivateRequestModel : ValidateThisModel /// Flag to check the Attributes 
     {
         [Required]
         [LengthValidation(10)]
