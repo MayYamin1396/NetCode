@@ -72,6 +72,7 @@ namespace eVoucher.DataInfrastructure
         public decimal DiscountValue { get; set; }
         public decimal MaxDiscount { get; set; }
         public decimal MinDiscount { get; set; }
+        public int MethodStatus { get; set; }
     }
     public class UsersTableModel
     {

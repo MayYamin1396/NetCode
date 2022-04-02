@@ -1,4 +1,5 @@
 using eVoucher.Authentication;
+using eVoucher.BusinessLogicLayer;
 using eVoucher.DataInfrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -56,7 +57,8 @@ namespace eVoucher
             services.AddSingleton<iJWTAuthentication>(new JWTAuthentication(key));
             services.AddDbContext<eVoucherDbContext>(options => options.UseMySQL(Configuration.GetConnectionString("Default")));
             services.AddControllers();
-            services.AddSwaggerGen();       
+            services.AddSwaggerGen();
+            services.AddScoped<IeVoucherCMSBusinessLogic, eVoucherCMSBusinessLogic>();
             //services.AddScoped<ImodelSerializer, modelSerializer>();
         }
 

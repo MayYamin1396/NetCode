@@ -1,4 +1,5 @@
 ﻿using eVoucher.Authentication;
+using eVoucher.BusinessLogicLayer;
 using eVoucher.DataInfrastructure;
 using eVoucher.Helpers;
 using eVoucher.Model;
@@ -19,11 +20,13 @@ namespace eVoucher.Controllers
     [Route("api/CMS/eVoucher")] 
     public class eVoucherCMSController : BaseAPIController
     {
-        iJWTAuthentication authentication;
+        private readonly iJWTAuthentication authentication;
         private readonly IConfiguration config;
         private readonly eVoucherDbContext _Dbcontext;
-        public eVoucherCMSController(iJWTAuthentication auth, IConfiguration configuration, eVoucherDbContext Dbcontext)
-        {          
+        private readonly IeVoucherCMSBusinessLogic businessLayer;
+        public eVoucherCMSController(IeVoucherCMSBusinessLogic business, iJWTAuthentication auth, IConfiguration configuration, eVoucherDbContext Dbcontext)
+        {
+            businessLayer = business;
             authentication = auth;
             config = configuration;
             _Dbcontext = Dbcontext;
@@ -69,7 +72,7 @@ namespace eVoucher.Controllers
             }
             finally
             {
-                Services<eVoucherLogTableModel>.LogServices(config).PerformLogging(new eVoucherLogTableModel
+                Services<eVoucherLogTableModel>.LogServices(config, _Dbcontext).PerformLogging(new eVoucherLogTableModel
                 {
                     Method = Request.Method,
                     Route = Request.Path,
@@ -97,7 +100,8 @@ namespace eVoucher.Controllers
                 {
                     return FailValidationResponse();
                 }
-                return Ok("");
+                var CreateVoucher = businessLayer.CreateEVoucher(requestModel);
+                return Ok(CreateVoucher);
 
             }
             catch (Exception ex)
@@ -107,7 +111,7 @@ namespace eVoucher.Controllers
             }
             finally
             {
-                Services<eVoucherLogTableModel>.LogServices(config).PerformLogging(new eVoucherLogTableModel
+                Services<eVoucherLogTableModel>.LogServices(config, _Dbcontext).PerformLogging(new eVoucherLogTableModel
                 {
                     Method = Request.Method,
                     Route = Request.Path,

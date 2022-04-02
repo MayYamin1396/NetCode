@@ -1,4 +1,5 @@
-﻿using eVoucher.Helpers.Logging;
+﻿using eVoucher.DataInfrastructure;
+using eVoucher.Helpers.Logging;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -9,9 +10,9 @@ namespace eVoucher.Helpers
 {
     public class Services<IRequest>
     {
-        public static ILogServices<IRequest> LogServices(IConfiguration config)
+        public static ILogServices<IRequest> LogServices(IConfiguration config, eVoucherDbContext context)
         {
-            return new LogServices<IRequest>(config);
+            return new LogServices<IRequest>(config, context);
         }
     }
 }

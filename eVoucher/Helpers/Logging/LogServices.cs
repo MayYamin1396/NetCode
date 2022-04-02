@@ -14,8 +14,9 @@ namespace eVoucher.Helpers.Logging
         private static string LoggingMode;
         private readonly IConfiguration config;
         private readonly eVoucherDbContext _Dbcontext;
-        public LogServices(IConfiguration configuration)
+        public LogServices(IConfiguration configuration, eVoucherDbContext dbContext)
         {
+            _Dbcontext = dbContext;
             config = configuration;         
             LoggingMode = config["TripleDesSecretKey"];
         }
@@ -68,7 +69,6 @@ namespace eVoucher.Helpers.Logging
 
         private void LogInFile(IRequest reqData)
         {
-            string errMsg = null;
             var RequetModel = (eVoucherLogTableModel)Convert.ChangeType(reqData, typeof(eVoucherLogTableModel));
             try
             {
