@@ -36,7 +36,7 @@ namespace eVoucher.BusinessLogicLayer
                 return new APIResponseModel {ResponseCode ="012", ResponseDescription = ValidateEVoucher };
             }
 
-            var InternalImageUrl ="Images/eVoucher_" + Guid.NewGuid()+eVoucherHelpers.GetFileExtension(requestModel.Base64Image.Substring(0, 5));            
+            var InternalImageUrl ="Images/eVoucher_" + Guid.NewGuid()+eHelper.GetFileExtension(requestModel.Base64Image.Substring(0, 5));            
             Base64ToImage(requestModel.Base64Image).Save(configuration["ImageURL"] + InternalImageUrl);
 
            
@@ -91,7 +91,7 @@ namespace eVoucher.BusinessLogicLayer
                 DeleteImage(getEVoucherbyID.ImageURL);                
                 InternalImageUrl = "Images/eVoucher_" 
                     + Guid.NewGuid() 
-                    + eVoucherHelpers.GetFileExtension(requestModel.Base64Image.Substring(0, 5));
+                    + eHelper.GetFileExtension(requestModel.Base64Image.Substring(0, 5));
                 Base64ToImage(requestModel.Base64Image).Save(configuration["ImageURL"] + InternalImageUrl);
             }
             getEVoucherbyID.Title = requestModel.Title;

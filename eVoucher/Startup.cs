@@ -2,6 +2,7 @@ using eVoucher.Authentication;
 using eVoucher.BusinessLogicLayer;
 using eVoucher.BusinessLogicLayer.eStore;
 using eVoucher.DataInfrastructure;
+using eVoucher.Helpers.Caching;
 using eVoucher.Helpers.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -64,6 +65,7 @@ namespace eVoucher
             services.AddScoped<ILogServices, LogServices>();
             services.AddScoped<IeStoreBusinessLogic, eStoreBusinessLogic>();
             services.AddScoped<JobQueueLogic>();
+            services.AddScoped<Redis>();
 
             //services.AddScoped<ImodelSerializer, modelSerializer>();
         }
