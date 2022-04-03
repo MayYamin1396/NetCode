@@ -21,7 +21,14 @@ namespace eVoucher.BusinessLogicLayer
         }
         #region CMS
         public async Task<APIResponseModel> CreateEVoucher(eVoucherCreateAndUpdateRequestModel requestModel)
-        {       
+        {
+            #region Admin Validation
+            if(!await CheckAdminAuthorization(requestModel.UserID))
+            {
+                return new APIResponseModel { ResponseCode = "012", ResponseDescription = "Invalid Access" };
+            }
+            #endregion
+
             var ValidateEVoucher = await validateEVoucher(requestModel);
             if (string.IsNullOrEmpty(requestModel.PaymentMethodID)) { requestModel.PaymentMethodID = "0"; }
             if (!string.IsNullOrEmpty(ValidateEVoucher))
@@ -54,15 +61,21 @@ namespace eVoucher.BusinessLogicLayer
         public async Task<APIResponseModel> UpdateEVoucher(eVoucherCreateAndUpdateRequestModel requestModel)
         {
             #region Validations
+            #region Admin Validation
+            if (!await CheckAdminAuthorization(requestModel.UserID))
+            {
+                return new APIResponseModel { ResponseCode = "012", ResponseDescription = "Invalid Access" };
+            }
+            #endregion
             if (string.IsNullOrEmpty(requestModel.ID ) || string.IsNullOrEmpty(requestModel.eStatus))
             {
-                return new APIResponseModel { ResponseCode = "012", ResponseDescription = "Missing mandatory data" };
+                return new APIResponseModel { ResponseCode = "015", ResponseDescription = "Missing mandatory data" };
             }
             var ValidateEVoucher = await validateEVoucher(requestModel);
            
             if (!string.IsNullOrEmpty(ValidateEVoucher))
             {
-                return new APIResponseModel { ResponseCode = "012", ResponseDescription = ValidateEVoucher };
+                return new APIResponseModel { ResponseCode = "016", ResponseDescription = ValidateEVoucher };
             }
             #endregion
 
@@ -70,7 +83,7 @@ namespace eVoucher.BusinessLogicLayer
             if(getEVoucherbyID == null)
             {
                 string ez = requestModel.ID;
-                return new APIResponseModel { ResponseCode = "012", ResponseDescription = "Data not found" };
+                return new APIResponseModel { ResponseCode = "017", ResponseDescription = "Data not found" };
             }
             string InternalImageUrl = null;
             if (!string.IsNullOrEmpty(requestModel.Base64Image))
@@ -98,16 +111,28 @@ namespace eVoucher.BusinessLogicLayer
             return new APIResponseModel { ResponseCode = "000", ResponseDescription = "Success" }; ;
         }
 
-        public async Task<eVoucherTableModel> GetEVoucherByID(eVoucherDisplayByIDRequestModel requestModel)
+        public async Task<APIResponseWithDataModel> GetEVoucherByID(eVoucherDisplayByIDRequestModel requestModel)
         {
+            #region Admin Validation
+            if (!await CheckAdminAuthorization(requestModel.UserID))
+            {
+                return new APIResponseWithDataModel { ResponseCode = "012", ResponseDescription = "Invalid Access" };
+            }
+            #endregion
             var getEVoucherbyID = await _dbContext.eVoucher.Where(voucher => voucher.ID == int.Parse(requestModel.ID)).Select(voucher => voucher).FirstOrDefaultAsync();
-            return getEVoucherbyID;
+            return new APIResponseWithDataModel { ResponseCode = "000", ResponseDescription ="Success", data = getEVoucherbyID };
         }
 
-        public async Task<List<eVoucherTableModel>> GetListOfEVoucher()
+        public async Task<APIResponseWithDataModel> GetListOfEVoucher(eVoucherDisplayByIDRequestModel requestModel)
         {
+            #region Admin Validation
+            if (!await CheckAdminAuthorization(requestModel.UserID))
+            {
+                return new APIResponseWithDataModel { ResponseCode = "012", ResponseDescription = "Invalid Access" };
+            }
+            #endregion
             var lstOfValues = await (from d in _dbContext.eVoucher orderby d.ID descending select d).ToListAsync();
-            return lstOfValues;
+            return new APIResponseWithDataModel { ResponseCode = "000", ResponseDescription = "Success", data = lstOfValues };
         }
 
         public async Task<APIResponseModel> DeactivateEVoucher(eVoucherDeactivateRequestModel requestModel)
@@ -128,6 +153,20 @@ namespace eVoucher.BusinessLogicLayer
         #endregion
 
         #region Validations
+        public async Task<bool> CheckAdminAuthorization(string UserID)
+        {
+          var isAdmin = await(from US in _dbContext.usersTableModel
+                            .Where(us => us.ID == int.Parse(UserID) && us.UserType == "Admin" && us.UserStatus == "1")
+                            orderby US.ID descending select US).ToListAsync();
+            if(isAdmin == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
         public async Task<string> validateEVoucher(eVoucherCreateAndUpdateRequestModel requestModel)
         {
             if (string.IsNullOrEmpty(requestModel.ID)) { requestModel.ID = "0"; }

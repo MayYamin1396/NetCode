@@ -46,7 +46,7 @@ namespace eVoucher.Controllers
             string errMessage = null;
             try
             {
-                DecryptRequest = TripleDesDecryptor(requestModel.CredentialValue, config["TripleDesSecretKey"]);
+                DecryptRequest = eHelper.TripleDesDecryptor(requestModel.CredentialValue, config["TripleDesSecretKey"]);
                 if (!string.IsNullOrEmpty(DecryptRequest))
                 {
                     var getRequestObject = JsonConvert.DeserializeObject<AuthenticationModel>(DecryptRequest);
@@ -79,7 +79,7 @@ namespace eVoucher.Controllers
             }
             finally
             {
-                new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
                 {
                     Method = Request.Method,
                     Route = Request.Path,
@@ -89,7 +89,7 @@ namespace eVoucher.Controllers
                     Request_UserID = 0,
                     Message = errMessage == null ? "Success": errMessage
 
-                })).Start() ;
+                }) ;
             }
         }
 
@@ -98,8 +98,7 @@ namespace eVoucher.Controllers
         [Route("CMS/CreateEVoucher")]
         public async Task<IActionResult> CreateEVoucher([FromBody] eVoucherCreateAndUpdateRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -108,6 +107,7 @@ namespace eVoucher.Controllers
                     return FailValidationResponse();
                 }
                 var CreateVoucher = await businessLayer.CreateEVoucher(requestModel);
+                respData = JsonConvert.SerializeObject(CreateVoucher);
                 return Ok(CreateVoucher);
 
             }
@@ -118,17 +118,17 @@ namespace eVoucher.Controllers
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
 
@@ -136,8 +136,7 @@ namespace eVoucher.Controllers
         [Route("CMS/UpdateEVoucher")]
         public async Task<IActionResult> UpdateEVoucher([FromBody] eVoucherCreateAndUpdateRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -145,8 +144,9 @@ namespace eVoucher.Controllers
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.UpdateEVoucher(requestModel);
-                return Ok(CreateVoucher);
+                var UpdatesVoucher = await businessLayer.UpdateEVoucher(requestModel);
+                respData = JsonConvert.SerializeObject(UpdatesVoucher);
+                return Ok(UpdatesVoucher);
 
             }
             catch (Exception ex)
@@ -156,17 +156,17 @@ namespace eVoucher.Controllers
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
 
@@ -174,8 +174,7 @@ namespace eVoucher.Controllers
         [Route("CMS/DisplayEVoucherByID")]
         public async Task<IActionResult> DisplayEVoucherByID([FromBody] eVoucherDisplayByIDRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -183,8 +182,9 @@ namespace eVoucher.Controllers
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.GetEVoucherByID(requestModel);
-                return Ok(CreateVoucher);
+                var displayResult = await businessLayer.GetEVoucherByID(requestModel);
+                respData = JsonConvert.SerializeObject(displayResult);
+                return Ok(displayResult);
 
             }
             catch (Exception ex)
@@ -194,17 +194,17 @@ namespace eVoucher.Controllers
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
 
@@ -212,8 +212,7 @@ namespace eVoucher.Controllers
         [Route("CMS/DisplayListOfEVoucher")]
         public async Task<IActionResult> DisplayListOfEVoucher([FromBody] eVoucherDisplayByIDRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -221,8 +220,9 @@ namespace eVoucher.Controllers
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.GetListOfEVoucher();
-                return Ok(CreateVoucher);
+                var ListResult = await businessLayer.GetListOfEVoucher(requestModel);
+                respData = JsonConvert.SerializeObject(ListResult);
+                return Ok(ListResult);
 
             }
             catch (Exception ex)
@@ -232,17 +232,17 @@ namespace eVoucher.Controllers
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
 
@@ -250,8 +250,7 @@ namespace eVoucher.Controllers
         [Route("CMS/DeactivateEVoucherByID")]
         public async Task<IActionResult> DeactivateEVoucherByID([FromBody] eVoucherDeactivateRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -259,8 +258,9 @@ namespace eVoucher.Controllers
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.DeactivateEVoucher(requestModel);
-                return Ok(CreateVoucher);
+                var result = await businessLayer.DeactivateEVoucher(requestModel);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
 
             }
             catch (Exception ex)
@@ -270,17 +270,17 @@ namespace eVoucher.Controllers
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
     }

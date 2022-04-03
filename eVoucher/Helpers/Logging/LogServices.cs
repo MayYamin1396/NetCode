@@ -24,7 +24,7 @@ namespace eVoucher.Helpers.Logging
         public async Task PerformLoggingAsync(eVoucherLogTableModel reqData)
         {
             LoggingProcess LoggingProcessOption;
-            IAsyncResult asynCall;
+            //IAsyncResult asynCall;
             switch (LoggingMode)
             {
                 case "0":
@@ -39,15 +39,15 @@ namespace eVoucher.Helpers.Logging
                     break;
 
                 case "2":
-                    LoggingProcessOption = new LoggingProcess(LogInFile);
-                    asynCall = LoggingProcessOption.BeginInvoke(reqData, null, null);
-                    LoggingProcessOption.EndInvoke(asynCall);
+                    //LoggingProcessOption = new LoggingProcess(LogInFile);
+                    //asynCall = LoggingProcessOption.BeginInvoke(reqData, null, null);
+                    //LoggingProcessOption.EndInvoke(asynCall);
                     break;
 
                 case "12":
-                    LoggingProcessOption = new LoggingProcess(LogInDataBase);
-                    asynCall = LoggingProcessOption.BeginInvoke(reqData, callBack, Tuple.Create(reqData));
-                    LoggingProcessOption.EndInvoke(asynCall);
+                    //LoggingProcessOption = new LoggingProcess(LogInDataBase);
+                    //asynCall = LoggingProcessOption.BeginInvoke(reqData, callBack, Tuple.Create(reqData));
+                    //LoggingProcessOption.EndInvoke(asynCall);
                     break;
             }
         }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +38,7 @@ namespace eVoucher.Controllers.eStore
         [Route("GetVoucherDetail")]
         public async Task<IActionResult> GetListOfActiveVoucher([FromBody] eShopDisplayActiveVoucherRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -46,8 +46,9 @@ namespace eVoucher.Controllers.eStore
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.eVoucherDetail(int.Parse(requestModel.VoucherID));
-                return Ok(CreateVoucher);
+                var result = await businessLayer.eVoucherDetail(int.Parse(requestModel.VoucherID));
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
 
             }
             catch (Exception ex)
@@ -57,17 +58,17 @@ namespace eVoucher.Controllers.eStore
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
 
@@ -75,8 +76,7 @@ namespace eVoucher.Controllers.eStore
         [Route("GetListOfVoucherByBuyType")]
         public async Task<IActionResult> GetListOfVoucherDetail([FromBody] eShopDisplayActiveVoucherListByTypeRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -84,8 +84,9 @@ namespace eVoucher.Controllers.eStore
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.DisplayListOfActiveeVoucherByType(requestModel.BuyType);
-                return Ok(CreateVoucher);
+                var result = await businessLayer.DisplayListOfActiveeVoucherByType(requestModel.BuyType);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -94,17 +95,17 @@ namespace eVoucher.Controllers.eStore
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
 
@@ -112,8 +113,7 @@ namespace eVoucher.Controllers.eStore
         [Route("CheckOutVoucher")]
         public async Task<IActionResult> CheckOutVoucher([FromBody] eShopCheckOutRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -121,8 +121,9 @@ namespace eVoucher.Controllers.eStore
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.eShopCheckOut(requestModel);
-                return Ok(CreateVoucher);
+                var result = await businessLayer.eShopCheckOut(requestModel);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -131,17 +132,17 @@ namespace eVoucher.Controllers.eStore
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
 
@@ -149,8 +150,7 @@ namespace eVoucher.Controllers.eStore
         [Route("MakePayment")]
         public async Task<IActionResult> MakePayment([FromBody] eShopTransactionRequestModel requestModel)
         {
-            string DecryptRequest = null;
-            string getToken = null;
+            string respData = null;
             string errMessage = null;
             try
             {
@@ -158,8 +158,9 @@ namespace eVoucher.Controllers.eStore
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.eShopTransaction(requestModel);
-                return Ok(CreateVoucher);
+                var result = await businessLayer.eShopTransaction(requestModel);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -168,19 +169,167 @@ namespace eVoucher.Controllers.eStore
             }
             finally
             {
-                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
-                //{
-                //    Method = Request.Method,
-                //    Route = Request.Path,
-                //    RequestData = DecryptRequest,
-                //    ResponseData = JsonConvert.SerializeObject(getToken),
-                //    CreatedDate = DateTime.Now,
-                //    Request_UserID = 0,
-                //    Message = errMessage == null ? "Success" : errMessage
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
 
-                //})).Start();
+                });
             }
         }
 
+
+        [HttpPost]
+        [Route("VerifyPromoCode")]
+        public async Task<IActionResult> VerifyPromoCode([FromBody] checkQRModel requestModel)
+        {
+            string respData = null;
+            string errMessage = null;
+            try
+            {
+                if (ValidateRequestModel(requestModel) == false)
+                {
+                    return FailValidationResponse();
+                }
+                var result = await businessLayer.eShopValidatePromocode(requestModel);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                errMessage = ex.Message;
+                return BadRequest();
+            }
+            finally
+            {
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
+
+                });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("ApplyPromoCode")]
+        public async Task<IActionResult> ApplyPromoCode([FromBody] ApplyPromoCodeModel requestModel)
+        {
+            string respData = null;
+            string errMessage = null;
+            try
+            {
+                if (ValidateRequestModel(requestModel) == false)
+                {
+                    return FailValidationResponse();
+                }
+                var result = await businessLayer.eShopApplyPromocode(requestModel);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                errMessage = ex.Message;
+                return BadRequest();
+            }
+            finally
+            {
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
+
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("PurchasedHistoryList")]
+        public async Task<IActionResult> PurchasedHistoryList([FromBody] TransactionHistoryModel requestModel)
+        {
+            string respData = null;
+            string errMessage = null;
+            try
+            {
+                if (ValidateRequestModel(requestModel) == false)
+                {
+                    return FailValidationResponse();
+                }
+                var result = await businessLayer.eShopPurchaseHistory(requestModel);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                errMessage = ex.Message;
+                return BadRequest();
+            }
+            finally
+            {
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
+
+                });
+            }
+        }
+        [HttpPost]
+        [Route("PurchasedHistoryDetail")]
+        public async Task<IActionResult> PurchasedHistoryDetail([FromBody] TransactionHistoryDetailModel requestModel)
+        {
+            string respData = null;
+            string errMessage = null;
+            try
+            {
+                if (ValidateRequestModel(requestModel) == false)
+                {
+                    return FailValidationResponse();
+                }
+                var result = await businessLayer.eShopPurchaseHistoryDetail(requestModel);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                errMessage = ex.Message;
+                return BadRequest();
+            }
+            finally
+            {
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = 0,
+                    Message = errMessage == null ? "Success" : errMessage
+
+                });
+            }
+        }
     }
 }

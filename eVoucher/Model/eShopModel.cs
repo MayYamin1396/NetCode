@@ -118,4 +118,63 @@ namespace eVoucher.Model
     {
         public int remainer { get; set; }
     }
+    public class checkQRModel : ValidateThisModel /// Flag to check the Attributes 
+    {
+        [Required]
+        public string data { get; set; }
+    }
+    public class QRPromoCodeModel
+    {
+        public string PromoCode { get; set; }
+        public string Amount { get; set; }
+        public string Discount { get; set; }
+        public string TotalAmount { get; set; }
+        public string VoucherID { get; set; }
+        public string OwnerID { get; set; }
+        public string TransactionID { get; set; }
+    }
+    public class PromoCodeResponseModel
+    {
+        public string ResponseCode { get; set; }
+        public string ResponseDescription { get; set; }
+        public dynamic data { get; set; }
+    }
+    public class PromoCodeStatusModel
+    {
+        public string PromoCode { get; set; }
+        public string Amount { get; set; }
+        public string TransactionID { get; set; }
+        public string PromoCodeStatus { get; set; }
+        public string Owner { get; set; }
+    }
+    public class ApplyPromoCodeModel
+    {
+        public string UserID { get; set; }
+        public string ItemID { get; set; }
+        public string PromoCode { get; set; }
+    }
+    public class TransactionHistoryModel
+    {
+        public string UserID { get; set; }
+    }
+    public class TransactionHistoryDetailModel
+    {
+        public string UserID { get; set; }
+        public string TransactionID { get; set; }
+    }
+    public class ApplyPromoCodeResponseModel
+    {
+        public decimal Amount { get; set; }
+        public decimal Charges { get; set; }
+        public decimal PromoDiscount { get; set; }
+        public decimal Discount { get; set; }
+        public decimal TotalAmount { get; set; }
+    }
+    public class TransactionDetailResponseModel
+    {
+        public string QrCodeURL { get; set; }
+        public string Promocode { get; set; }
+        public string PromoStatus { get; set; }
+        public string PromoAmount { get; set; }
+    }
 }

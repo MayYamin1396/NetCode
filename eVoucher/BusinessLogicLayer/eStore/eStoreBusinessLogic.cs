@@ -3,6 +3,7 @@ using eVoucher.Helpers;
 using eVoucher.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace eVoucher.BusinessLogicLayer.eStore
             configuration = config;
             _dbContext = context;
         }
+        #region estore Business
         public async Task<eShopSelfVoucherDetailModel> eVoucherDetail(int voucherID)
         {
             var getEVoucherbyID = await (
@@ -120,10 +122,14 @@ namespace eVoucher.BusinessLogicLayer.eStore
             {
                 return new eShopCheckOutResponseModel { ResponseCode = "019", ResponseDescription = "You have entered more than available quantity." };
             }
+            if (int.Parse(requestModel.Quantity) > 1000)
+            {
+                return new eShopCheckOutResponseModel { ResponseCode = "020", ResponseDescription = "Our system only support maximum of 1000 promo code stack per transaction." };
+            }
             var checkQuantity = await CheckSufficientQuantity(requestModel.VoucherID, int.Parse(requestModel.Quantity));
             if (!checkQuantity)
             {
-                return new eShopCheckOutResponseModel { ResponseCode = "020", ResponseDescription = "Insufficient Quantity" };
+                return new eShopCheckOutResponseModel { ResponseCode = "021", ResponseDescription = "Insufficient Quantity" };
             }
 
             #endregion
@@ -149,7 +155,6 @@ namespace eVoucher.BusinessLogicLayer.eStore
                 return new eShopCheckOutResponseModel { ResponseCode = "016", ResponseDescription = "Something went wrong" };
             }
         }
-
         public async Task<eShopTransactionResponseModel> eShopTransaction(eShopTransactionRequestModel requestModel)
         {         
             #region Validate Transaction
@@ -198,9 +203,122 @@ namespace eVoucher.BusinessLogicLayer.eStore
             }
             return new eShopTransactionResponseModel { ResponseCode = "000", ResponseDescription = "Success - Your transaction is pending, check in history in a few mins", TransactionStatus = "Pending" };
         }
+        public async Task<PromoCodeResponseModel> eShopValidatePromocode(checkQRModel requestModel)
+        {
+            requestModel.data = eHelper.TripleDesDecryptor(requestModel.data, configuration["TripleDesSecretKey"]);
+            var promoModel = JsonConvert.DeserializeObject<QRPromoCodeModel>(requestModel.data);
+             var getPromoCodeStatus = await (
+                from EV in _dbContext.eVoucher
+               .Where(ev => ev.ID == int.Parse(promoModel.VoucherID)) 
+                from UOV in _dbContext.usersOrderedVouchers
+               .Where(uov => uov.eVoucherID == EV.ID)
+               .DefaultIfEmpty()
+                select new PromoCodeStatusModel
+                {
+                    PromoCode = promoModel.PromoCode,
+                    Amount = EV.Amount.ToString(),
+                    TransactionID = promoModel.TransactionID,
+                    PromoCodeStatus =
+                     (
+                         UOV.PromoStatus == "1" ? "Valid" : "Used"
+                     ),
+                    Owner = (from users in _dbContext.usersTableModel
+                            .Where(us => us.ID == UOV.UserID)
+                             select users.FullName).FirstOrDefault()
+                }).FirstOrDefaultAsync();
 
+            return new PromoCodeResponseModel { ResponseCode = "000", ResponseDescription = "Success",data = getPromoCodeStatus };
+        }
 
-        #region eStore Logics
+        public async Task<PromoCodeResponseModel> eShopApplyPromocode(ApplyPromoCodeModel requestModel)
+        {
+            var chargesCalculationModel = new ApplyPromoCodeResponseModel();
+
+            chargesCalculationModel.Amount = 100000;
+            chargesCalculationModel.Charges = 5000;
+            chargesCalculationModel.Discount = 2000;
+            chargesCalculationModel.PromoDiscount = 0;
+
+            if (!string.IsNullOrEmpty(requestModel.PromoCode))
+            {
+                var getDiscount = await (
+                from PmCode in _dbContext.usersOrderedVouchers
+                .Where(pm => pm.Promocode == requestModel.PromoCode)
+                from EV in _dbContext.eVoucher
+                .Where(ev => ev.ID == PmCode.eVoucherID)
+                select new 
+                {
+                    UserID= PmCode.UserID,
+                    PromoAmount = PmCode.PromoAmount,
+                    ExpiredDate = EV.ExpireDate
+                }).FirstOrDefaultAsync();
+                if (getDiscount != null)
+                {
+                    if (getDiscount.ExpiredDate < DateTime.Now)
+                    {
+                        return new PromoCodeResponseModel { ResponseCode = "054", ResponseDescription = "Promocode is Expired" };
+                    }
+                    if (getDiscount.UserID != int.Parse(requestModel.UserID))
+                    {
+                        return new PromoCodeResponseModel { ResponseCode = "055", ResponseDescription = "Promocode is not elligible to apply by this User." };
+                    }
+
+                    chargesCalculationModel.PromoDiscount = getDiscount.PromoAmount;
+
+                    var UpdatePromoStatus = await (
+                      from PmCode in _dbContext.usersOrderedVouchers
+                      .Where(pm => pm.Promocode == requestModel.PromoCode)
+                      select PmCode).FirstOrDefaultAsync();
+                    UpdatePromoStatus.PromoStatus = "2";
+                    await _dbContext.SaveChangesAsync();
+                }
+                else
+                {
+                    return new PromoCodeResponseModel { ResponseCode = "056", ResponseDescription = "Invalid Promo Code"};
+                }
+            }
+            chargesCalculationModel.TotalAmount = 
+                (chargesCalculationModel.Amount + chargesCalculationModel.Charges)
+                - (chargesCalculationModel.PromoDiscount + chargesCalculationModel.Discount);
+            return new PromoCodeResponseModel { ResponseCode = "000", ResponseDescription = "Success", data = chargesCalculationModel };
+        }
+
+        public async Task<PromoCodeResponseModel> eShopPurchaseHistory(TransactionHistoryModel requestModel)
+        {
+            var getTransactionHistory = await (
+                from TH in _dbContext.transactionHistory
+                .Where(th => th.SenderUserID == requestModel.UserID)
+                orderby TH.ID descending
+                select TH).ToListAsync();
+
+            return new PromoCodeResponseModel { ResponseCode = "000", ResponseDescription = "Success", data = getTransactionHistory };
+        }
+        public async Task<PromoCodeResponseModel> eShopPurchaseHistoryDetail(TransactionHistoryDetailModel requestModel)
+        {
+            var getTransactionHistory = await (
+                from UOV in _dbContext.usersOrderedVouchers
+                .Where(uov => uov.TransactionID == requestModel.TransactionID)
+                orderby UOV.ID descending
+                from EV in _dbContext.eVoucher
+                .Where(ev => ev.ID == UOV.eVoucherID)
+                select new TransactionDetailResponseModel 
+                {
+                    QrCodeURL = UOV.PromoStatus == "2"?null : UOV.QrCodeURL,
+                    Promocode = UOV.Promocode,
+                    PromoAmount = UOV.PromoAmount.ToString(),
+                    PromoStatus = 
+                    (
+                        (UOV.PromoStatus == "1" && EV.ExpireDate > DateTime.Now) ? "Valid":
+                        UOV.PromoStatus == "2"? "Used":"Expired"                   
+                    )
+
+                }).ToListAsync();
+
+            return new PromoCodeResponseModel { ResponseCode = "000", ResponseDescription = "Success", data = getTransactionHistory };
+        }
+        #endregion
+
+        #region eStore Helper
         public async Task<decimal> DiscountAmountCalculation(string PaymentMethodID, decimal TotalAmount)
         {
             var getDiscount = await(

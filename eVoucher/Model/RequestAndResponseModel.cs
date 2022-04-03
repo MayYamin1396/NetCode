@@ -38,6 +38,12 @@ namespace eVoucher.Model
         public string ResponseCode { get; set; }
         public string ResponseDescription { get; set; }
     }
+    public class APIResponseWithDataModel
+    {
+        public string ResponseCode { get; set; }
+        public string ResponseDescription { get; set; }
+        public dynamic data { get; set; }
+    }
     public class GetTokenResponseModel
     {
         public string ResponseCode { get; set; }

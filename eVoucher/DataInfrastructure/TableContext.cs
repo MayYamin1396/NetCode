@@ -61,11 +61,13 @@ namespace eVoucher.DataInfrastructure
     {
         [Key]
         public int ID { get; set; }
-        public string eVoucherID { get; set; }
+        public int eVoucherID { get; set; }
         public string QrCodeURL { get; set; }
         public string TransactionID { get; set; }      
         public string Promocode { get; set; }
-        public string UserID { get; set; }
+        public int UserID { get; set; }
+        public string PromoStatus { get; set; }
+        public decimal PromoAmount { get; set; }
     }
     public class PaymentMethodTableModel
     {
@@ -86,6 +88,7 @@ namespace eVoucher.DataInfrastructure
         public string UserType { get; set; }
         public string MobileNo { get; set; }
         public string Password { get; set; }
+        public string UserStatus { get; set; }
     }
     public class eVoucherQuantityControlTableModel
     {

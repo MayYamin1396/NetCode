@@ -12,5 +12,9 @@ namespace eVoucher.BusinessLogicLayer.eStore
         Task<List<eShopSelfVoucherListModel>> DisplayListOfActiveeVoucherByType(string BuyType);
         Task<eShopCheckOutResponseModel> eShopCheckOut(eShopCheckOutRequestModel requestModel);
         Task<eShopTransactionResponseModel> eShopTransaction(eShopTransactionRequestModel requestModel);
+        Task<PromoCodeResponseModel> eShopValidatePromocode(checkQRModel requestModel);
+        Task<PromoCodeResponseModel> eShopApplyPromocode(ApplyPromoCodeModel requestModel);
+        Task<PromoCodeResponseModel> eShopPurchaseHistory(TransactionHistoryModel requestModel);
+        Task<PromoCodeResponseModel> eShopPurchaseHistoryDetail(TransactionHistoryDetailModel requestModel);
     }
 }

@@ -64,6 +64,7 @@ namespace eVoucher
             services.AddScoped<ILogServices, LogServices>();
             services.AddScoped<IeStoreBusinessLogic, eStoreBusinessLogic>();
             services.AddScoped<JobQueueLogic>();
+
             //services.AddScoped<ImodelSerializer, modelSerializer>();
         }
 

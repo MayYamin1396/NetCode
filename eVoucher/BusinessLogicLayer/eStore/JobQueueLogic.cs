@@ -121,9 +121,10 @@ namespace eVoucher.BusinessLogicLayer.eStore
         }
         public async Task<bool> CreateQR(eShopQRModel requestModel)
         {
-            var QRInformation = Encrypt(JsonConvert.SerializeObject(requestModel), configuration["TripleDesSecretKey"]);
+            var QRInformation = eHelper.TripleDesEncryptor(JsonConvert.SerializeObject(requestModel), configuration["TripleDesSecretKey"]);
+            var encodeQRWithObject = new { data = QRInformation };
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(QRInformation, QRCodeGenerator.ECCLevel.Q);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(JsonConvert.SerializeObject(encodeQRWithObject), QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
             var coloring = Color.FromArgb(71, 170, 136);
             var logoPath = "Images/BaseQR/baseQRImage.png";
@@ -135,40 +136,17 @@ namespace eVoucher.BusinessLogicLayer.eStore
             }
             await _dbContext.AddAsync(new UsersOrderedVouchersTableModel
             {
-                eVoucherID = requestModel.VoucherID,
+                eVoucherID = int.Parse(requestModel.VoucherID),
                 QrCodeURL = InternalImageUrl,
                 TransactionID = requestModel.TransactionID,
                 Promocode = requestModel.PromoCode,
-                UserID = requestModel.OwnerID
+                UserID = int.Parse(requestModel.OwnerID),
+                PromoAmount = decimal.Parse(requestModel.Amount),
+                PromoStatus = "1"
             });
             await _dbContext.SaveChangesAsync();
             return true;
         }
-        public static string Encrypt(string source, string key)
-        {
-            TripleDESCryptoServiceProvider desCryptoProvider = new TripleDESCryptoServiceProvider();
-
-            byte[] byteBuff;
-
-            try
-            {
-                desCryptoProvider.Key = Encoding.UTF8.GetBytes(key);
-                desCryptoProvider.IV = UTF8Encoding.UTF8.GetBytes("ABCDEFGH");
-                byteBuff = Encoding.UTF8.GetBytes(source);
-
-                string iv = Convert.ToBase64String(desCryptoProvider.IV);
-                Console.WriteLine("iv: {0}", iv);
-
-                string encoded =
-                    Convert.ToBase64String(desCryptoProvider.CreateEncryptor().TransformFinalBlock(byteBuff, 0, byteBuff.Length));
-
-                return encoded;
-            }
-            catch (Exception except)
-            {
-                Console.WriteLine(except + "\n\n" + except.StackTrace);
-                return null;
-            }
-        }
+      
     }
 }

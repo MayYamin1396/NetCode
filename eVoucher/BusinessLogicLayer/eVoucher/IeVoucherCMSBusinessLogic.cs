@@ -11,8 +11,8 @@ namespace eVoucher.BusinessLogicLayer
     {
         Task<APIResponseModel> CreateEVoucher(eVoucherCreateAndUpdateRequestModel requestModel);
         Task<APIResponseModel> UpdateEVoucher(eVoucherCreateAndUpdateRequestModel requestModel);
-        Task<List<eVoucherTableModel>> GetListOfEVoucher();
-        Task<eVoucherTableModel> GetEVoucherByID(eVoucherDisplayByIDRequestModel requestModel);
+        Task<APIResponseWithDataModel> GetListOfEVoucher(eVoucherDisplayByIDRequestModel requestModel);
+        Task<APIResponseWithDataModel> GetEVoucherByID(eVoucherDisplayByIDRequestModel requestModel);
         Task<APIResponseModel> DeactivateEVoucher(eVoucherDeactivateRequestModel requestModel);
     }
 }
