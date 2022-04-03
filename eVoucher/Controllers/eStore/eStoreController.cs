@@ -72,8 +72,8 @@ namespace eVoucher.Controllers.eStore
         }
 
         [HttpPost]
-        [Route("GetListOfVoucher")]
-        public async Task<IActionResult> GetListOfVoucherDetail([FromBody] eShopDisplayActiveVoucherRequestModel requestModel)
+        [Route("GetListOfVoucherByBuyType")]
+        public async Task<IActionResult> GetListOfVoucherDetail([FromBody] eShopDisplayActiveVoucherListByTypeRequestModel requestModel)
         {
             string DecryptRequest = null;
             string getToken = null;
@@ -84,7 +84,7 @@ namespace eVoucher.Controllers.eStore
                 {
                     return FailValidationResponse();
                 }
-                var CreateVoucher = await businessLayer.DisplayListOfActiveeVoucher();
+                var CreateVoucher = await businessLayer.DisplayListOfActiveeVoucherByType(requestModel.BuyType);
                 return Ok(CreateVoucher);
             }
             catch (Exception ex)
@@ -122,6 +122,43 @@ namespace eVoucher.Controllers.eStore
                     return FailValidationResponse();
                 }
                 var CreateVoucher = await businessLayer.eShopCheckOut(requestModel);
+                return Ok(CreateVoucher);
+            }
+            catch (Exception ex)
+            {
+                errMessage = ex.Message;
+                return BadRequest();
+            }
+            finally
+            {
+                //new Thread(() => logging.PerformLoggingAsync(new eVoucherLogTableModel
+                //{
+                //    Method = Request.Method,
+                //    Route = Request.Path,
+                //    RequestData = DecryptRequest,
+                //    ResponseData = JsonConvert.SerializeObject(getToken),
+                //    CreatedDate = DateTime.Now,
+                //    Request_UserID = 0,
+                //    Message = errMessage == null ? "Success" : errMessage
+
+                //})).Start();
+            }
+        }
+
+        [HttpPost]
+        [Route("MakePayment")]
+        public async Task<IActionResult> MakePayment([FromBody] eShopTransactionRequestModel requestModel)
+        {
+            string DecryptRequest = null;
+            string getToken = null;
+            string errMessage = null;
+            try
+            {
+                if (ValidateRequestModel(requestModel) == false)
+                {
+                    return FailValidationResponse();
+                }
+                var CreateVoucher = await businessLayer.eShopTransaction(requestModel);
                 return Ok(CreateVoucher);
             }
             catch (Exception ex)

@@ -14,15 +14,16 @@ namespace eVoucher.DataInfrastructure
         [Key]
         public int ID { get; set; }
         public string TransactionID { get; set; }
-        public int SenderUserID { get; set; }
-        public int ReceiverUserID { get; set; }
+        public string SenderUserID { get; set; }
+        public string ReceiverUserID { get; set; }
         public string TransactionStatus { get; set; }
         public string ReversalTransactionID { get; set; }
         public string hasReversal { get; set; }
         public string OriginalAmount { get; set; }
         public string DiscountAmount { get; set; }
         public string TotalAmount { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public string CreatedDate { get; set; }
+        public string UpdatedDate { get; set; }
 
     }
     public class eVoucherTableModel
@@ -60,10 +61,11 @@ namespace eVoucher.DataInfrastructure
     {
         [Key]
         public int ID { get; set; }
-        public int eVoucherID { get; set; }
+        public string eVoucherID { get; set; }
         public string QrCodeURL { get; set; }
         public string TransactionID { get; set; }      
         public string Promocode { get; set; }
+        public string UserID { get; set; }
     }
     public class PaymentMethodTableModel
     {
@@ -85,11 +87,23 @@ namespace eVoucher.DataInfrastructure
         public string MobileNo { get; set; }
         public string Password { get; set; }
     }
-    public class eVoucherQuantityControl
+    public class eVoucherQuantityControlTableModel
     {
         [Key]
         public int ID { get; set; }
-        public int VoucherID { get; set; }
+        public string VoucherID { get; set; }
         public int VoucherPurchasedQuantity { get; set; }
+    }
+    public class ValidateTransactionTableModel
+    {
+        [Key]
+        public int ID { get; set; }
+        public int UserID { get; set; }
+        public string OriginalAmount { get; set; }
+        public string DiscountAmount { get; set; }
+        public string TotalAmount { get; set; }
+        public string Quantity { get; set; }
+        public string VoucherID { get; set; }
+        public string ReceiverUserID { get; set; }
     }
 }

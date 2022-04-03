@@ -28,8 +28,8 @@ namespace eVoucher.Controllers
 
         public BaseAPIController()
         {
-            Serializer = FactoryList.ModelSerializerInitialization();
-            Validation = FactoryList.ValidationLogicsInitialization();
+            Serializer = FactoryList.ModelSerializerInjection();
+            Validation = FactoryList.ValidationLogicsInjection();
             ErrorMessage = null;
             respModel = new errorResponseModel();
             RequestedDateTime = DateTime.Now;
@@ -87,7 +87,7 @@ namespace eVoucher.Controllers
         protected IActionResult FailValidationResponse(string RespCode, string RespDesc)
         {
             respModel.ResponseCode = RespCode;
-            respModel.ResponseDescription = RespDesc.Replace("[", "").Replace("\"", "").Replace(",", "");
+            respModel.ResponseDescription = RespDesc.Replace("[", "").Replace("]","").Replace("\"", "").Replace(",", "");
             return Ok(new errorResponseModel(RespCode, RespDesc));
         }
         protected string SerializeModelState(ModelStateDictionary msd)

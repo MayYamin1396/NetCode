@@ -10,11 +10,11 @@ namespace eVoucher.FactoryClass
 {
     public class FactoryList
     {
-        public static ImodelSerializer ModelSerializerInitialization()
+        public static ImodelSerializer ModelSerializerInjection()
         {
             return new modelSerializer();
         }
-        public static IValidationLogics ValidationLogicsInitialization()
+        public static IValidationLogics ValidationLogicsInjection()
         {
             return new ValidationLogics();
         }

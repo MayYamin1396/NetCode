@@ -15,7 +15,9 @@ namespace eVoucher.DataInfrastructure
         public DbSet<UsersOrderedVouchersTableModel> usersOrderedVouchers { get; set; }
         public DbSet<PaymentMethodTableModel> paymentMethod { get; set; }
         public DbSet<UsersTableModel> usersTableModel { get; set; }
-        public DbSet<eVoucherQuantityControl> eVoucherQuantityControl { get; set; }
+        public DbSet<eVoucherQuantityControlTableModel> eVoucherQuantityControl { get; set; }
+        public DbSet<ValidateTransactionTableModel> ValidateTransaction { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,7 +27,8 @@ namespace eVoucher.DataInfrastructure
             modelBuilder.Entity<UsersOrderedVouchersTableModel>().ToTable("orderedevoucher");
             modelBuilder.Entity<PaymentMethodTableModel>().ToTable("paymentmethod");
             modelBuilder.Entity<UsersTableModel>().ToTable("users");
-            modelBuilder.Entity<eVoucherQuantityControl>().ToTable("evoucher_control");
+            modelBuilder.Entity<eVoucherQuantityControlTableModel>().ToTable("evoucher_control");
+            modelBuilder.Entity<ValidateTransactionTableModel>().ToTable("validate_transaction");
         }
     }
 }

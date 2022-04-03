@@ -63,7 +63,7 @@ namespace eVoucher
             services.AddScoped<IeVoucherCMSBusinessLogic, eVoucherCMSBusinessLogic>();
             services.AddScoped<ILogServices, LogServices>();
             services.AddScoped<IeStoreBusinessLogic, eStoreBusinessLogic>();
-            
+            services.AddScoped<JobQueueLogic>();
             //services.AddScoped<ImodelSerializer, modelSerializer>();
         }
 

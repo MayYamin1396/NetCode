@@ -21,8 +21,9 @@ namespace eVoucher.BusinessLogicLayer
         }
         #region CMS
         public async Task<APIResponseModel> CreateEVoucher(eVoucherCreateAndUpdateRequestModel requestModel)
-        {
+        {       
             var ValidateEVoucher = await validateEVoucher(requestModel);
+            if (string.IsNullOrEmpty(requestModel.PaymentMethodID)) { requestModel.PaymentMethodID = "0"; }
             if (!string.IsNullOrEmpty(ValidateEVoucher))
             {
                 return new APIResponseModel {ResponseCode ="012", ResponseDescription = ValidateEVoucher };
@@ -31,6 +32,7 @@ namespace eVoucher.BusinessLogicLayer
             var InternalImageUrl ="Images/eVoucher_" + Guid.NewGuid()+eVoucherHelpers.GetFileExtension(requestModel.Base64Image.Substring(0, 5));            
             Base64ToImage(requestModel.Base64Image).Save(configuration["ImageURL"] + InternalImageUrl);
 
+           
             await _dbContext.AddAsync(new eVoucherTableModel
             {
                 Title = requestModel.Title,
@@ -128,6 +130,7 @@ namespace eVoucher.BusinessLogicLayer
         #region Validations
         public async Task<string> validateEVoucher(eVoucherCreateAndUpdateRequestModel requestModel)
         {
+            if (string.IsNullOrEmpty(requestModel.ID)) { requestModel.ID = "0"; }
             var isExistVoucher =await _dbContext.eVoucher
                 .Where(
                 voucher => voucher.Amount == decimal.Parse(requestModel.Amount) && voucher.Title == requestModel.Title && voucher.ID != int.Parse(requestModel.ID))
