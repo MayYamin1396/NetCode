@@ -8,8 +8,8 @@ namespace eVoucher.BusinessLogicLayer.eStore
 {
     public interface IeStoreBusinessLogic
     {
-        Task<eShopSelfVoucherDetailModel> eVoucherDetail(int voucherID);
-        Task<List<eShopSelfVoucherListModel>> DisplayListOfActiveeVoucherByType(string BuyType);
+        Task<eShopSelfVoucherDetailModel> eVoucherDetail(int voucherID, int UserID);
+        Task<List<eShopSelfVoucherListModel>> DisplayListOfActiveeVoucherByType(string BuyType,int UserID);
         Task<eShopCheckOutResponseModel> eShopCheckOut(eShopCheckOutRequestModel requestModel);
         Task<eShopTransactionResponseModel> eShopTransaction(eShopTransactionRequestModel requestModel);
         Task<PromoCodeResponseModel> eShopValidatePromocode(checkQRModel requestModel);

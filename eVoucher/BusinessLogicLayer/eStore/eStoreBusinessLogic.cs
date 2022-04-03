@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 
 namespace eVoucher.BusinessLogicLayer.eStore
@@ -23,8 +24,15 @@ namespace eVoucher.BusinessLogicLayer.eStore
             _dbContext = context;
         }
         #region estore Business
-        public async Task<eShopSelfVoucherDetailModel> eVoucherDetail(int voucherID)
+        public async Task<eShopSelfVoucherDetailModel> eVoucherDetail(int voucherID,int UserID)
         {
+            #region Validate User
+            if (! await isValidUser(UserID))
+            {
+                throw new AuthenticationException("101");
+            }
+            #endregion
+
             var getEVoucherbyID = await (
                 from voucher in _dbContext.eVoucher
                 .Where(vc => vc.ID == voucherID)
@@ -55,8 +63,14 @@ namespace eVoucher.BusinessLogicLayer.eStore
 
             return getEVoucherbyID;
         }
-        public async Task<List<eShopSelfVoucherListModel>> DisplayListOfActiveeVoucherByType(string BuyType)
+        public async Task<List<eShopSelfVoucherListModel>> DisplayListOfActiveeVoucherByType(string BuyType,int UserID)
         {
+            #region Validate User
+            if (!await isValidUser(UserID))
+            {
+                throw new AuthenticationException("101");
+            }
+            #endregion
             var getEVoucherbyID = await (
                 from voucher in _dbContext.eVoucher
                 .Where(vc => (vc.Quantity - (from orderCount in _dbContext.eVoucherQuantityControl
@@ -82,6 +96,13 @@ namespace eVoucher.BusinessLogicLayer.eStore
         }
         public async Task<eShopCheckOutResponseModel> eShopCheckOut(eShopCheckOutRequestModel requestModel)
         {
+            #region Validate User
+            if (!await isValidUser(int.Parse(requestModel.UserID)))
+            {
+                throw new AuthenticationException("101");
+            }
+            #endregion
+
             var calcualtionModel = new eShopCheckOutAmountCalculationModel();
 
             #region Validations
@@ -171,7 +192,13 @@ namespace eVoucher.BusinessLogicLayer.eStore
             }
         }
         public async Task<eShopTransactionResponseModel> eShopTransaction(eShopTransactionRequestModel requestModel)
-        {         
+        {
+            #region Validate User
+            if (!await isValidUser(int.Parse(requestModel.UserID)))
+            {
+                throw new AuthenticationException("101");
+            }
+            #endregion
             #region Validate Transaction
             var calculatedResult = requestModel.amountCalculationResult;
             var isTransactionValid = await (
@@ -254,6 +281,12 @@ namespace eVoucher.BusinessLogicLayer.eStore
 
         public async Task<PromoCodeResponseModel> eShopApplyPromocode(ApplyPromoCodeModel requestModel)
         {
+            #region Validate User
+            if (!await isValidUser(int.Parse(requestModel.UserID)))
+            {
+                throw new AuthenticationException("101");
+            }
+            #endregion
             var chargesCalculationModel = new ApplyPromoCodeResponseModel();
 
             chargesCalculationModel.Amount = 100000;
@@ -307,6 +340,12 @@ namespace eVoucher.BusinessLogicLayer.eStore
 
         public async Task<PromoCodeResponseModel> eShopPurchaseHistory(TransactionHistoryModel requestModel)
         {
+            #region Validate User
+            if (!await isValidUser(int.Parse(requestModel.UserID)))
+            {
+                throw new AuthenticationException("101");
+            }
+            #endregion
             var getTransactionHistory = await (
                 from TH in _dbContext.transactionHistory
                 .Where(th => th.SenderUserID == requestModel.UserID)
@@ -317,6 +356,12 @@ namespace eVoucher.BusinessLogicLayer.eStore
         }
         public async Task<PromoCodeResponseModel> eShopPurchaseHistoryDetail(TransactionHistoryDetailModel requestModel)
         {
+            #region Validate User
+            if (!await isValidUser(int.Parse(requestModel.UserID)))
+            {
+                throw new AuthenticationException("101");
+            }
+            #endregion
             var getTransactionHistory = await (
                 from UOV in _dbContext.usersOrderedVouchers
                 .Where(uov => uov.TransactionID == requestModel.TransactionID)
@@ -494,6 +539,23 @@ namespace eVoucher.BusinessLogicLayer.eStore
             if (checkSufficientQuantity != null && checkSufficientQuantity.remainer >= Quantity)
             {              
                 return true;                
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        public async Task<bool> isValidUser(int UserID)
+        {
+            var checkUser = await (
+               from US in _dbContext.usersTableModel
+               .Where(us => us.ID == UserID && us.UserStatus == "1")
+               select US).FirstOrDefaultAsync();
+            if (checkUser != null)
+            {
+                return true;
             }
             else
             {

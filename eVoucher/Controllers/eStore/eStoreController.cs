@@ -46,7 +46,7 @@ namespace eVoucher.Controllers.eStore
                 {
                     return FailValidationResponse();
                 }
-                var result = await businessLayer.eVoucherDetail(int.Parse(requestModel.VoucherID));
+                var result = await businessLayer.eVoucherDetail(int.Parse(requestModel.VoucherID),int.Parse(requestModel.UserID));
                 respData = JsonConvert.SerializeObject(result);
                 return Ok(result);
 
@@ -84,7 +84,7 @@ namespace eVoucher.Controllers.eStore
                 {
                     return FailValidationResponse();
                 }
-                var result = await businessLayer.DisplayListOfActiveeVoucherByType(requestModel.BuyType);
+                var result = await businessLayer.DisplayListOfActiveeVoucherByType(requestModel.BuyType,int.Parse(requestModel.UserID));
                 respData = JsonConvert.SerializeObject(result);
                 return Ok(result);
             }
