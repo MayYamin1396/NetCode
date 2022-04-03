@@ -93,43 +93,58 @@ namespace eVoucher.BusinessLogicLayer.eStore
             
             if(activeEVoucher == null)
             {
-                return new eShopCheckOutResponseModel { ResponseCode = "014", ResponseDescription = "This eVoucher is deactivated." };
+                return InvalidResponse("014", "This eVoucher is deactivated.");
             }
             var GetUserIDByMobileNo = await (
               from users in _dbContext.usersTableModel
               .Where(us => us.MobileNo == requestModel.MobileNo)
               select users).FirstOrDefaultAsync();
             if (GetUserIDByMobileNo == null)
-            {
-                return new eShopCheckOutResponseModel { ResponseCode = "015", ResponseDescription = "Sorry, user does not exist." };
+            {                
+                return InvalidResponse("015", "Sorry, user does not exist.");
             }
 
             if (activeEVoucher.BuyType == "Self")
             {               
                 if(GetUserIDByMobileNo.ID != int.Parse(requestModel.UserID))
                 {
-                    return new eShopCheckOutResponseModel { ResponseCode = "016", ResponseDescription = "This Voucher cannot be gifted to other users." };
+                    return InvalidResponse("016", "This Voucher cannot be gifted to other users.");
                 }
             }
             else
             {              
                 if (GetUserIDByMobileNo.ID == int.Parse(requestModel.UserID))
                 {
-                    return new eShopCheckOutResponseModel { ResponseCode = "018", ResponseDescription = "This Voucher is for gifting." };
+                    return InvalidResponse("018", "TThis Voucher is for gifting.");                 
                 }
             }
             if(activeEVoucher.Quantity < int.Parse(requestModel.Quantity))
             {
-                return new eShopCheckOutResponseModel { ResponseCode = "019", ResponseDescription = "You have entered more than available quantity." };
+                return InvalidResponse("019", "You have entered more than available quantity.");
             }
             if (int.Parse(requestModel.Quantity) > 1000)
             {
-                return new eShopCheckOutResponseModel { ResponseCode = "020", ResponseDescription = "Our system only support maximum of 1000 promo code stack per transaction." };
+                return InvalidResponse("020", "Our system only support maximum of 1000 promo code stack per transaction.");
+            }
+            if (int.Parse(requestModel.Quantity) > activeEVoucher.RedeemPerUser)
+            {
+                return InvalidResponse("021", "You have reached redeemed per user limit.");
+            }
+            else
+            {
+                var GetUserPurchasedCount = await (
+               from UOV in _dbContext.usersOrderedVouchers
+               .Where(uov => uov.eVoucherID == int.Parse(requestModel.VoucherID))
+               select UOV).CountAsync();
+                if((GetUserPurchasedCount + int.Parse(requestModel.Quantity)) > activeEVoucher.RedeemPerUser)
+                {
+                    return InvalidResponse("022", "You have reached redeemed per user limit.");
+                }
             }
             var checkQuantity = await CheckSufficientQuantity(requestModel.VoucherID, int.Parse(requestModel.Quantity));
             if (!checkQuantity)
             {
-                return new eShopCheckOutResponseModel { ResponseCode = "021", ResponseDescription = "Insufficient Quantity" };
+                return InvalidResponse("023", "Insufficient Quantity");             
             }
 
             #endregion
@@ -168,12 +183,19 @@ namespace eVoucher.BusinessLogicLayer.eStore
                     && vt.TotalAmount == calculatedResult.TotalAmount
                     && vt.Quantity == calculatedResult.Quantity
                     && vt.VoucherID == calculatedResult.VoucherID
-                    && vt.ReceiverUserID == calculatedResult.ReceiverUserID)
+                    && vt.ReceiverUserID == calculatedResult.ReceiverUserID
+                    && vt.isValidated == "0")
                     select validate).FirstOrDefaultAsync();
 
             if(isTransactionValid == null)
             {
                 return new eShopTransactionResponseModel { ResponseCode = "101", ResponseDescription = "Invalid Transaction",TransactionStatus = "Invalid" };
+            }
+            else
+            {
+                isTransactionValid.isValidated = "1";
+                await _dbContext.SaveChangesAsync();
+
             }
             #endregion
             var checkQuantity = await CheckSufficientQuantity(calculatedResult.VoucherID, int.Parse(calculatedResult.Quantity));
@@ -319,6 +341,10 @@ namespace eVoucher.BusinessLogicLayer.eStore
         #endregion
 
         #region eStore Helper
+        public eShopCheckOutResponseModel InvalidResponse(string code, string desc)
+        {
+            return new eShopCheckOutResponseModel { ResponseCode = code, ResponseDescription = desc };
+        }
         public async Task<decimal> DiscountAmountCalculation(string PaymentMethodID, decimal TotalAmount)
         {
             var getDiscount = await(
@@ -368,7 +394,8 @@ namespace eVoucher.BusinessLogicLayer.eStore
                     TotalAmount = requestModel.TotalAmount,
                     Quantity = requestModel.Quantity,
                     VoucherID = requestModel.VoucherID,
-                    ReceiverUserID = requestModel.ReceiverUserID
+                    ReceiverUserID = requestModel.ReceiverUserID,
+                    isValidated = "0"
                 };
 
                 if (isValidateExist != null)
@@ -380,6 +407,7 @@ namespace eVoucher.BusinessLogicLayer.eStore
                     isValidateExist.Quantity = validationData.Quantity;
                     isValidateExist.VoucherID = validationData.VoucherID;
                     isValidateExist.ReceiverUserID = validationData.ReceiverUserID;
+                    isValidateExist.isValidated = validationData.isValidated;
                     await _dbContext.SaveChangesAsync();
                 }
                 else

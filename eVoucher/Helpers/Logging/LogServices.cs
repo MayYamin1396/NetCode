@@ -32,10 +32,9 @@ namespace eVoucher.Helpers.Logging
 
                 case "1":
                     LoggingProcessOption = new LoggingProcess(LogInDataBase);
-                    var begin = Task.Run(() => LoggingProcessOption.Invoke(reqData));
-                    var followUpTask = begin.ContinueWith(null);
+                    var begin = Task.Run(() => LoggingProcessOption.Invoke(reqData));                    
                     await begin;
-                    await followUpTask;
+                   
                     break;
 
                 case "2":

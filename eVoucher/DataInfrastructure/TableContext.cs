@@ -108,5 +108,6 @@ namespace eVoucher.DataInfrastructure
         public string Quantity { get; set; }
         public string VoucherID { get; set; }
         public string ReceiverUserID { get; set; }
+        public string isValidated { get; set; }
     }
 }

@@ -87,9 +87,9 @@ namespace eVoucher.Controllers
                     ResponseData = JsonConvert.SerializeObject(getToken),
                     CreatedDate = DateTime.Now,
                     Request_UserID = 0,
-                    Message = errMessage == null ? "Success": errMessage
+                    Message = errMessage == null ? "Success" : errMessage
 
-                }) ;
+                });
             }
         }
 
