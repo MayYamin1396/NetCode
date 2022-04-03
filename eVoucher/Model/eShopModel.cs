@@ -155,10 +155,14 @@ namespace eVoucher.Model
     }
     public class TransactionHistoryModel
     {
+        [Required]
+        [LengthValidation(10)]
         public string UserID { get; set; }
     }
     public class TransactionHistoryDetailModel
     {
+        [Required]
+        [LengthValidation(10)]
         public string UserID { get; set; }
         public string TransactionID { get; set; }
     }

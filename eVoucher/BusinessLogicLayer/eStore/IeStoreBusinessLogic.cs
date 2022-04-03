@@ -16,5 +16,6 @@ namespace eVoucher.BusinessLogicLayer.eStore
         Task<PromoCodeResponseModel> eShopApplyPromocode(ApplyPromoCodeModel requestModel);
         Task<PromoCodeResponseModel> eShopPurchaseHistory(TransactionHistoryModel requestModel);
         Task<PromoCodeResponseModel> eShopPurchaseHistoryDetail(TransactionHistoryDetailModel requestModel);
+        Task<PromoCodeResponseModel> eShopGetPaymentMethodList(TransactionHistoryModel requestModel);
     }
 }

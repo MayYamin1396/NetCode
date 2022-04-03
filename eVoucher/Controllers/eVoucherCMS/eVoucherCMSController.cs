@@ -86,7 +86,7 @@ namespace eVoucher.Controllers
                     RequestData = DecryptRequest,
                     ResponseData = JsonConvert.SerializeObject(getToken),
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = "0",
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -125,7 +125,7 @@ namespace eVoucher.Controllers
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -163,7 +163,7 @@ namespace eVoucher.Controllers
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -201,7 +201,7 @@ namespace eVoucher.Controllers
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -239,7 +239,7 @@ namespace eVoucher.Controllers
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -277,7 +277,7 @@ namespace eVoucher.Controllers
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });

@@ -54,7 +54,7 @@ namespace eVoucher.DataInfrastructure
         public string RequestData { get; set; }
         public string ResponseData { get; set; }
         public DateTime CreatedDate { get; set; }
-        public int Request_UserID { get; set; }
+        public string Request_UserID { get; set; }
         public string Message { get; set; }
     }
     public class UsersOrderedVouchersTableModel

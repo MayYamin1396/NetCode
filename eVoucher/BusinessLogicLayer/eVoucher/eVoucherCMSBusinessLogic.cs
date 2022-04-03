@@ -136,7 +136,13 @@ namespace eVoucher.BusinessLogicLayer
         }
 
         public async Task<APIResponseModel> DeactivateEVoucher(eVoucherDeactivateRequestModel requestModel)
-        {         
+        {
+            #region Admin Validation
+            if (!await CheckAdminAuthorization(requestModel.UserID))
+            {
+                return new APIResponseModel { ResponseCode = "012", ResponseDescription = "Invalid Access" };
+            }
+            #endregion
             var getEVoucherbyID = await _dbContext.eVoucher.Where(voucher => voucher.ID == int.Parse(requestModel.ID)).Select(voucher => voucher).FirstOrDefaultAsync();
             if (getEVoucherbyID == null)
             {
@@ -157,7 +163,7 @@ namespace eVoucher.BusinessLogicLayer
         {
           var isAdmin = await(from US in _dbContext.usersTableModel
                             .Where(us => us.ID == int.Parse(UserID) && us.UserType == "Admin" && us.UserStatus == "1")
-                            orderby US.ID descending select US).ToListAsync();
+                            orderby US.ID descending select US).FirstOrDefaultAsync();
             if(isAdmin == null)
             {
                 return false;

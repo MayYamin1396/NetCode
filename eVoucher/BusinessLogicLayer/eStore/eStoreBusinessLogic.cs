@@ -249,8 +249,12 @@ namespace eVoucher.BusinessLogicLayer.eStore
                     UpdateTransactionStatus.UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                     await _dbContext.SaveChangesAsync();
                 }
+                else
+                {
+                    return new eShopTransactionResponseModel { ResponseCode = "090", ResponseDescription = "Something went wrong during transaction", TransactionStatus = "Failed" };
+                }
             }
-            return new eShopTransactionResponseModel { ResponseCode = "000", ResponseDescription = "Success - Your transaction is pending, check in history in a few mins", TransactionStatus = "Pending" };
+            return new eShopTransactionResponseModel { ResponseCode = "000", ResponseDescription = "Success, check transaction status in history in a few mins", TransactionStatus = "Pending" };
         }
         public async Task<PromoCodeResponseModel> eShopValidatePromocode(checkQRModel requestModel)
         {
@@ -298,7 +302,7 @@ namespace eVoucher.BusinessLogicLayer.eStore
             {
                 var getDiscount = await (
                 from PmCode in _dbContext.usersOrderedVouchers
-                .Where(pm => pm.Promocode == requestModel.PromoCode)
+                .Where(pm => pm.Promocode == requestModel.PromoCode && pm.PromoStatus == "1")
                 from EV in _dbContext.eVoucher
                 .Where(ev => ev.ID == PmCode.eVoucherID)
                 select new 
@@ -382,6 +386,26 @@ namespace eVoucher.BusinessLogicLayer.eStore
                 }).ToListAsync();
 
             return new PromoCodeResponseModel { ResponseCode = "000", ResponseDescription = "Success", data = getTransactionHistory };
+        }
+        public async Task<PromoCodeResponseModel> eShopGetPaymentMethodList(TransactionHistoryModel requestModel)
+        {
+            #region Validate User
+            if (!await isValidUser(int.Parse(requestModel.UserID)))
+            {
+                throw new AuthenticationException("101");
+            }
+            #endregion
+            var GetPaymentList = await (
+                  from Pmethod in _dbContext.paymentMethod
+                  .Where(pm => pm.MethodStatus == 1)
+                  orderby Pmethod.Method ascending
+                  select new 
+                  { 
+                        PaymentMethodName = Pmethod.Method,
+                        PaymentID = Pmethod.ID
+                  }).ToListAsync();
+
+            return new PromoCodeResponseModel { ResponseCode = "000", ResponseDescription = "Success", data = GetPaymentList };
         }
         #endregion
 

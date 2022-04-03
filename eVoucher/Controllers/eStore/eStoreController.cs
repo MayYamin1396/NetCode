@@ -65,7 +65,7 @@ namespace eVoucher.Controllers.eStore
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -102,7 +102,7 @@ namespace eVoucher.Controllers.eStore
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -139,7 +139,7 @@ namespace eVoucher.Controllers.eStore
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -176,7 +176,7 @@ namespace eVoucher.Controllers.eStore
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -214,7 +214,7 @@ namespace eVoucher.Controllers.eStore
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = "0",
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -252,7 +252,7 @@ namespace eVoucher.Controllers.eStore
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -289,7 +289,7 @@ namespace eVoucher.Controllers.eStore
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
@@ -325,7 +325,44 @@ namespace eVoucher.Controllers.eStore
                     RequestData = JsonConvert.SerializeObject(requestModel),
                     ResponseData = respData,
                     CreatedDate = DateTime.Now,
-                    Request_UserID = 0,
+                    Request_UserID = requestModel.UserID,
+                    Message = errMessage == null ? "Success" : errMessage
+
+                });
+            }
+        }
+
+        [HttpPost]
+        [Route("GetPaymentMethodList")]
+        public async Task<IActionResult> GetPaymentMethodList([FromBody] TransactionHistoryModel requestModel)
+        {
+            string respData = null;
+            string errMessage = null;
+            try
+            {
+                if (ValidateRequestModel(requestModel) == false)
+                {
+                    return FailValidationResponse();
+                }
+                var result = await businessLayer.eShopGetPaymentMethodList(requestModel);
+                respData = JsonConvert.SerializeObject(result);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                errMessage = ex.Message;
+                return BadRequest();
+            }
+            finally
+            {
+                await logging.PerformLoggingAsync(new eVoucherLogTableModel
+                {
+                    Method = Request.Method,
+                    Route = Request.Path,
+                    RequestData = JsonConvert.SerializeObject(requestModel),
+                    ResponseData = respData,
+                    CreatedDate = DateTime.Now,
+                    Request_UserID = requestModel.UserID,
                     Message = errMessage == null ? "Success" : errMessage
 
                 });
